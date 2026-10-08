@@ -92,25 +92,38 @@
           const targetUrl = decodedData.url;
           const customText = decodedData.text ? decodedData.text.trim() : "";
 
-          // Set custom loading text or default
           if (customText) {
             document.getElementById('customLoadingTitle').textContent = customText;
           } else {
             document.getElementById('customLoadingTitle').textContent = "লোড হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...";
           }
           
-          // Wait 3 seconds, then open monetization link in new tab and redirect original link in old tab
+          // Wait 3 seconds, then open monetization link in new tab and redirect current tab to original URL
           setTimeout(() => {
-            window.open(MONETIZATION_URL, '_blank');
-            window.location.replace(targetUrl);
+            // Open monetization link in new tab safely
+            const newTabLink = document.createElement('a');
+            newTabLink.href = MONETIZATION_URL;
+            newTabLink.target = '_blank';
+            document.body.appendChild(newTabLink);
+            newTabLink.click();
+            document.body.removeChild(newTabLink);
+
+            // Redirect current tab to original URL
+            window.location.href = targetUrl;
           }, 3000);
 
         } catch (e) {
           try {
             const originalUrl = atob(encodedTarget);
             setTimeout(() => {
-              window.open(MONETIZATION_URL, '_blank');
-              window.location.replace(originalUrl);
+              const newTabLink = document.createElement('a');
+              newTabLink.href = MONETIZATION_URL;
+              newTabLink.target = '_blank';
+              document.body.appendChild(newTabLink);
+              newTabLink.click();
+              document.body.removeChild(newTabLink);
+
+              window.location.href = originalUrl;
             }, 3000);
           } catch (err) {
             document.getElementById('customLoadingTitle').textContent = "ভুল বা অকার্যকর লিংক!";
