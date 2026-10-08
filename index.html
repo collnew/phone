@@ -4,55 +4,64 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FastLink - URL Shortener & Auto Redirect</title>
-  <!-- Tailwind CSS CDN for Modern UI -->
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Inter', sans-serif;
+      background-color: #000000;
+      color: #ffffff;
     }
   </style>
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 min-h-screen text-slate-100 flex flex-col justify-between items-center p-4">
+<body class="min-h-screen flex flex-col justify-between items-center p-4 selection:bg-indigo-500 selection:text-white">
 
   <!-- Header -->
   <header class="w-full max-w-2xl py-6 text-center">
-    <h2 class="text-2xl font-bold tracking-tight bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">⚡ FastLink Shortener</h2>
+    <h2 class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">⚡ FastLink Shortener</h2>
   </header>
 
   <!-- Main Container -->
   <main class="w-full max-w-lg mx-auto flex-1 flex items-center justify-center">
     
     <!-- Redirecting View (Shown when ?lnk= is present) -->
-    <div id="redirectView" class="hidden w-full bg-slate-800/80 backdrop-blur-md border border-slate-700 rounded-3xl p-8 text-center shadow-2xl">
+    <div id="redirectView" class="hidden w-full bg-[#121212] border border-neutral-800 rounded-3xl p-8 text-center shadow-2xl">
       <div class="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-      <h2 class="text-2xl font-bold text-white mb-2">রিডাইরেক্ট হচ্ছে...</h2>
-      <p class="text-slate-400 text-sm mb-6">অনুগ্রহ করে অপেক্ষা করুন, আপনাকে অরিজিনাল লিংকে নিয়ে যাওয়া হচ্ছে।</p>
-      <div id="targetUrlDisplay" class="text-xs text-indigo-300 bg-slate-900/60 p-3 rounded-xl break-all border border-slate-700/50"></div>
+      <h2 id="customLoadingTitle" class="text-2xl font-bold text-white mb-2">লোড হচ্ছে...</h2>
+      <p class="text-neutral-400 text-sm mb-6">অনুগ্রহ করে ৩ সেকেন্ড অপেক্ষা করুন...</p>
+      <div id="targetUrlDisplay" class="text-xs text-indigo-400 bg-black/60 p-3 rounded-xl break-all border border-neutral-800"></div>
     </div>
 
     <!-- Shortener View (Home) -->
-    <div id="shortenerView" class="w-full bg-slate-800/80 backdrop-blur-md border border-slate-700 rounded-3xl p-8 shadow-2xl">
+    <div id="shortenerView" class="w-full bg-[#121212] border border-neutral-800 rounded-3xl p-8 shadow-2xl">
       <div class="text-center mb-8">
         <h1 class="text-3xl font-extrabold text-white mb-2">লিংক ছোট করুন</h1>
-        <p class="text-slate-400 text-sm">আপনার বড় লিংকটি বক্সে পেস্ট করে নিমেষেই শর্ট লিংক তৈরি করুন।</p>
+        <p class="text-neutral-400 text-sm">আপনার বড় লিংক এবং লোডিং টেক্সট দিয়ে শর্ট লিংক তৈরি করুন।</p>
       </div>
 
-      <div class="space-y-4">
+      <div class="space-y-5">
+        <!-- Input 1: Original Link -->
         <div>
-          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">অরিজিনাল লিংক</label>
-          <input id="longUrl" type="url" placeholder="https://example.com/very-long-url..." class="w-full px-4 py-3.5 bg-slate-900/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm"/>
+          <label class="block text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-2">অরিজিনাল লিংক</label>
+          <input id="longUrl" type="url" placeholder="https://example.com/very-long-url..." class="w-full px-4 py-3.5 bg-black border border-neutral-800 rounded-xl text-white placeholder-neutral-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm"/>
         </div>
 
-        <button onclick="generateShortLink()" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-500/25 transition-all transform active:scale-[0.98] text-sm cursor-pointer">
+        <!-- Input 2: Custom Loading Text -->
+        <div>
+          <label class="block text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-2">লোডিং স্ক্রিন টেক্সট (ঐচ্ছিক)</label>
+          <input id="loadingText" type="text" placeholder="যেমন: আপনার ফাইল প্রস্তুত হচ্ছে, অপেক্ষা করুন..." class="w-full px-4 py-3.5 bg-black border border-neutral-800 rounded-xl text-white placeholder-neutral-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-sm"/>
+        </div>
+
+        <button onclick="generateShortLink()" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/30 transition-all transform active:scale-[0.98] text-sm cursor-pointer">
           Shorten Link 🚀
         </button>
       </div>
 
       <!-- Result Box -->
-      <div id="resultBox" class="hidden mt-6 p-5 bg-slate-900/90 border border-indigo-500/30 rounded-2xl">
+      <div id="resultBox" class="hidden mt-6 p-5 bg-black border border-neutral-800 rounded-2xl">
         <div class="text-xs font-semibold text-indigo-400 uppercase tracking-wider mb-2">আপনার শর্ট লিংক</div>
-        <div id="shortUrl" class="text-sm font-medium text-cyan-300 break-all mb-4 select-all bg-slate-950/50 p-3 rounded-xl border border-slate-800"></div>
+        <div id="shortUrl" class="text-sm font-medium text-cyan-300 break-all mb-4 select-all bg-neutral-950 p-3 rounded-xl border border-neutral-900"></div>
         <button onclick="copyLink()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl text-xs transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 cursor-pointer">
           <span>📋</span> লিংক কপি করুন
         </button>
@@ -62,13 +71,14 @@
   </main>
 
   <!-- Footer -->
-  <footer class="w-full max-w-2xl py-6 text-center text-xs text-slate-500">
-    <p>Powered by GitHub Pages &bull; Fast & Secure URL Shortener</p>
+  <footer class="w-full max-w-2xl py-6 text-center text-xs text-neutral-600">
+    <p>Powered by GitHub Pages &bull; Black Skin URL Shortener</p>
   </footer>
 
   <!-- Script Logic -->
   <script>
     const currentBaseUrl = window.location.origin + window.location.pathname;
+    const MONETIZATION_URL = "https://uplcm.com/4/11396881";
 
     window.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -79,27 +89,53 @@
         document.getElementById('redirectView').style.display = 'block';
 
         try {
-          const originalUrl = atob(encodedTarget);
-          document.getElementById('targetUrlDisplay').textContent = originalUrl;
+          // Decode Base64 JSON payload { url, text }
+          const decodedData = JSON.parse(atob(encodedTarget));
+          const targetUrl = decodedData.url;
+          const customText = decodedData.text ? decodedData.text.trim() : "";
+
+          // Set custom loading text or default
+          if (customText) {
+            document.getElementById('customLoadingTitle').textContent = customText;
+          } else {
+            document.getElementById('customLoadingTitle').textContent = "লোড হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...";
+          }
+
+          document.getElementById('targetUrlDisplay').textContent = targetUrl;
           
-          // Smooth redirect after 1.2 seconds
+          // Wait 3 seconds, then open monetization link in new tab and redirect original link in old tab
           setTimeout(() => {
-            window.location.replace(originalUrl);
-          }, 1200);
+            // Open monetization link in new tab
+            window.open(MONETIZATION_URL, '_blank');
+            // Redirect current tab to original URL
+            window.location.replace(targetUrl);
+          }, 3000);
+
         } catch (e) {
-          document.getElementById('targetUrlDisplay').textContent = "ভুল বা অকার্যকর লিংক!";
-          setTimeout(() => {
-            window.location.replace(currentBaseUrl);
-          }, 2000);
+          // Fallback if old format or invalid base64
+          try {
+            const originalUrl = atob(encodedTarget);
+            document.getElementById('targetUrlDisplay').textContent = originalUrl;
+            setTimeout(() => {
+              window.open(MONETIZATION_URL, '_blank');
+              window.location.replace(originalUrl);
+            }, 3000);
+          } catch (err) {
+            document.getElementById('customLoadingTitle').textContent = "ভুল বা অকার্যকর লিংক!";
+            setTimeout(() => {
+              window.location.replace(currentBaseUrl);
+            }, 2000);
+          }
         }
       }
     });
 
     function generateShortLink() {
       const longUrlInput = document.getElementById('longUrl').value.trim();
+      const loadingTextInput = document.getElementById('loadingText').value.trim();
 
       if (!longUrlInput) {
-        alert("দয়া করে একটি লিংক প্রবেশ করান।");
+        alert("দয়া করে অরিজিনাল লিংকটি প্রবেশ করান।");
         return;
       }
 
@@ -108,8 +144,14 @@
         return;
       }
 
-      const encodedUrl = btoa(longUrlInput);
-      const finalShortLink = currentBaseUrl.replace(/\/$/, "") + "/?lnk=" + encodedUrl;
+      // Pack URL and custom loading text into JSON and encode to Base64
+      const payload = {
+        url: longUrlInput,
+        text: loadingTextInput
+      };
+
+      const encodedData = btoa(JSON.stringify(payload));
+      const finalShortLink = currentBaseUrl.replace(/\/$/, "") + "/?lnk=" + encodedData;
 
       document.getElementById('shortUrl').textContent = finalShortLink;
       document.getElementById('resultBox').style.display = 'block';
