@@ -28,9 +28,8 @@
     <!-- Redirecting View (Shown when ?lnk= is present) -->
     <div id="redirectView" class="hidden w-full bg-[#121212] border border-neutral-800 rounded-3xl p-8 text-center shadow-2xl">
       <div class="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-      <h2 id="customLoadingTitle" class="text-2xl font-bold text-white mb-2">লোড হচ্ছে...</h2>
-      <p class="text-neutral-400 text-sm mb-6">অনুগ্রহ করে ৩ সেকেন্ড অপেক্ষা করুন...</p>
-      <div id="targetUrlDisplay" class="text-xs text-indigo-400 bg-black/60 p-3 rounded-xl break-all border border-neutral-800"></div>
+      <h2 id="customLoadingTitle" class="text-2xl font-bold text-white mb-3">লোড হচ্ছে...</h2>
+      <p class="text-neutral-400 text-sm">অনুগ্রহ করে ৩ সেকেন্ড অপেক্ষা করুন...</p>
     </div>
 
     <!-- Shortener View (Home) -->
@@ -89,7 +88,6 @@
         document.getElementById('redirectView').style.display = 'block';
 
         try {
-          // Decode Base64 JSON payload { url, text }
           const decodedData = JSON.parse(atob(encodedTarget));
           const targetUrl = decodedData.url;
           const customText = decodedData.text ? decodedData.text.trim() : "";
@@ -100,22 +98,16 @@
           } else {
             document.getElementById('customLoadingTitle').textContent = "লোড হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...";
           }
-
-          document.getElementById('targetUrlDisplay').textContent = targetUrl;
           
           // Wait 3 seconds, then open monetization link in new tab and redirect original link in old tab
           setTimeout(() => {
-            // Open monetization link in new tab
             window.open(MONETIZATION_URL, '_blank');
-            // Redirect current tab to original URL
             window.location.replace(targetUrl);
           }, 3000);
 
         } catch (e) {
-          // Fallback if old format or invalid base64
           try {
             const originalUrl = atob(encodedTarget);
-            document.getElementById('targetUrlDisplay').textContent = originalUrl;
             setTimeout(() => {
               window.open(MONETIZATION_URL, '_blank');
               window.location.replace(originalUrl);
@@ -144,7 +136,6 @@
         return;
       }
 
-      // Pack URL and custom loading text into JSON and encode to Base64
       const payload = {
         url: longUrlInput,
         text: loadingTextInput
