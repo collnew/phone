@@ -27,9 +27,14 @@
     
     <!-- Redirecting View (Shown when ?lnk= is present) -->
     <div id="redirectView" class="hidden w-full bg-[#121212] border border-neutral-800 rounded-3xl p-8 text-center shadow-2xl">
-      <div class="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+      <div id="loadingSpinner" class="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
       <h2 id="customLoadingTitle" class="text-2xl font-bold text-white mb-3">লোড হচ্ছে...</h2>
-      <p class="text-neutral-400 text-sm">অনুগ্রহ করে ৩ সেকেন্ড অপেক্ষা করুন...</p>
+      <p id="loadingSubtitle" class="text-neutral-400 text-sm mb-6">অনুগ্রহ করে ৩ সেকেন্ড অপেক্ষা করুন...</p>
+      
+      <!-- Action Button (Appears after 3 seconds to bypass popup blocker) -->
+      <button id="getLinkBtn" onclick="executeRedirection()" class="hidden w-full py-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold rounded-2xl shadow-xl shadow-indigo-600/30 transition-all transform active:scale-[0.98] text-base cursor-pointer">
+        Get Link / Continue 🚀
+      </button>
     </div>
 
     <!-- Shortener View (Home) -->
@@ -78,6 +83,7 @@
   <script>
     const currentBaseUrl = window.location.origin + window.location.pathname;
     const MONETIZATION_URL = "https://uplcm.com/4/11396881";
+    let storedTargetUrl = "";
 
     window.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -89,7 +95,7 @@
 
         try {
           const decodedData = JSON.parse(atob(encodedTarget));
-          const targetUrl = decodedData.url;
+          storedTargetUrl = decodedData.url;
           const customText = decodedData.text ? decodedData.text.trim() : "";
 
           if (customText) {
@@ -98,32 +104,22 @@
             document.getElementById('customLoadingTitle').textContent = "লোড হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...";
           }
           
-          // Wait 3 seconds, then open monetization link in new tab and redirect current tab to original URL
+          // Wait 3 seconds, then hide spinner and show "Get Link" button
           setTimeout(() => {
-            // Open monetization link in new tab safely
-            const newTabLink = document.createElement('a');
-            newTabLink.href = MONETIZATION_URL;
-            newTabLink.target = '_blank';
-            document.body.appendChild(newTabLink);
-            newTabLink.click();
-            document.body.removeChild(newTabLink);
-
-            // Redirect current tab to original URL
-            window.location.href = targetUrl;
+            document.getElementById('loadingSpinner').style.display = 'none';
+            document.getElementById('loadingSubtitle').style.display = 'none';
+            document.getElementById('customLoadingTitle').textContent = "আপনার লিংক প্রস্তুত!";
+            document.getElementById('getLinkBtn').classList.remove('hidden');
           }, 3000);
 
         } catch (e) {
           try {
-            const originalUrl = atob(encodedTarget);
+            storedTargetUrl = atob(encodedTarget);
             setTimeout(() => {
-              const newTabLink = document.createElement('a');
-              newTabLink.href = MONETIZATION_URL;
-              newTabLink.target = '_blank';
-              document.body.appendChild(newTabLink);
-              newTabLink.click();
-              document.body.removeChild(newTabLink);
-
-              window.location.href = originalUrl;
+              document.getElementById('loadingSpinner').style.display = 'none';
+              document.getElementById('loadingSubtitle').style.display = 'none';
+              document.getElementById('customLoadingTitle').textContent = "আপনার লিংক প্রস্তুত!";
+              document.getElementById('getLinkBtn').classList.remove('hidden');
             }, 3000);
           } catch (err) {
             document.getElementById('customLoadingTitle').textContent = "ভুল বা অকার্যকর লিংক!";
@@ -134,6 +130,21 @@
         }
       }
     });
+
+    function executeRedirection() {
+      if (!storedTargetUrl) return;
+
+      // 1. Open monetization link in new tab
+      const newTabLink = document.createElement('a');
+      newTabLink.href = MONETIZATION_URL;
+      newTabLink.target = '_blank';
+      document.body.appendChild(newTabLink);
+      newTabLink.click();
+      document.body.removeChild(newTabLink);
+
+      // 2. Redirect current tab to original user link
+      window.location.href = storedTargetUrl;
+    }
 
     function generateShortLink() {
       const longUrlInput = document.getElementById('longUrl').value.trim();
